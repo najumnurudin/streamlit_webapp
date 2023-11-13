@@ -1,83 +1,40 @@
-import mysql.connector
-import streamlit as st
-
-# Establish a connection to MySQL Server
-
-mydb = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="najimu_db_new"
-
-
-)
-mycursor=mydb.cursor()
-print("Connection Established")
-
-# Create Streamlit App
+try:
+    import os
+    import sys
+    import streamlit as st
+    import pandas as pd
+    from io import BytesIO, StringIO
+    print("all Modules are loaded")
+except Exception as e:
+    print("Some modules are missing : {}" .format(e))
+    
+    
+    # css
+    
+STYLE = """
+        <style>
+        img {
+            max-widt: 100;
+        }
+        </style>
+        """
 
 def main():
-    st.title("CRUD Operations With MySQL")
-    # Display Options for CRUD Operations
-    option=st.sidebar.selectbox("Select an Operation",("Create","Read","Update","Delete"))
-    # Perform Selected CRUD Operations
-    if option=="Create":
-        st.subheader("Create a Record")
-        name=st.text_input("Enter Name")
-        email=st.text_input("Enter Email")
-        password=st.text_input("Enter Password",type="password")
-        address=st.text_input("Enter address")
-        if st.button("Create"):
-            sql= "insert into users(name,email,password, address) values(%s,%s,%s,%s)"
-            val= (name,email, password, address)
-            mycursor.execute(sql,val)
-            mydb.commit()
-            st.success("Record Created Successfully!!!")
-
-
-
-    elif option=="Read":
-        st.subheader("Read Records")
-        mycursor.execute("select * from users")
-        result = mycursor.fetchall()
-        for row in result:
-            st.write(row)
-
-
-
-    elif option=="Update":
-        st.subheader("Update a Record")
-        id=st.number_input("Enter ID",min_value=1)
-        name=st.text_input("Enter New Name")
-        email=st.text_input("Enter New Email")
-        if st.button("Update"):
-            sql="update users set name=%s, email=%s where id =%s"
-            val=(name,email,id)
-            mycursor.execute(sql,val)
-            mydb.commit()
-            st.success("Record Updated Successfully!!!")
-
-
-
-
-    elif option=="Delete":
-        st.subheader("Delete a Record")
-        id=st.number_input("Enter ID",min_value=1)
-        if st.button("Delete"):
-            sql="delete from users where id =%s"
-            val=(id,)
-            mycursor.execute(sql,val)
-            mydb.commit()
-            st.success("Record Deleted Successfully!!!")
-
-
-if __name__ == "__main__":
-    main()
-
-
-
-
-
-
-
-
+    """Run the function to display the Streamlit app"""
+    st.info(__doc__)
+    st.markdown(STYLE, unsafe_allow_html=True)
+    file = st.file_uploader("Upload file", type=["csv", "png", "peg", "gif"])
+    show_file = st.empty()
+    
+    if not file:
+        show_file.info("Please Upload a file : {}".format(''.join(["csv", "png","peg", "gif"])))
+        return
+    content = file.getvalue()
+    
+    if isinstance(file, BytesIO):
+        show_file.image(file)
+    else:
+        df = pd.read_csv(file)
+        st.dataframe(data.head(10))
+        
+main()
